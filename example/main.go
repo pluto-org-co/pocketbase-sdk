@@ -26,7 +26,7 @@ func main() {
 	// pocketbase.WithAdminToken(token)
 	// pocketbase.WithDebug()
 
-	response, err := client.List("posts_public", pocketbase.ParamsList{
+	response, err := pocketbase.List[map[string]any](client, "posts_public", pocketbase.ParamsList{
 		Size:    1,
 		Page:    1,
 		Sort:    "-created",
@@ -46,13 +46,13 @@ func main() {
 
 	log.Println("Inserting new item")
 	// you can use struct type - just make sure it has JSON tags
-	_, err = client.Create("posts_public", Post{
+	_, err = pocketbase.Create(client, "posts_public", Post{
 		Field: "test_" + time.Now().Format(time.Stamp),
 	})
 	errs = errors.Join(errs, err)
 
 	// or you can use simple map[string]any
-	r, err := client.Create("posts_public", map[string]any{
+	r, err := pocketbase.Create(client, "posts_public", map[string]any{
 		"field": "test_" + time.Now().Format(time.Stamp),
 	})
 	errs = errors.Join(errs, err)

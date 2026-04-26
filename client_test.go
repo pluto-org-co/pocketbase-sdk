@@ -90,7 +90,7 @@ func TestListAccess(t *testing.T) {
 			} else if tt.user.email != "" {
 				c = NewClient(defaultURL, WithUserEmailPassword(tt.user.email, tt.user.password))
 			}
-			r, err := c.List(tt.collection, ParamsList{})
+			r, err := List[map[string]any](c, tt.collection, ParamsList{})
 			assert.Equal(t, tt.wantErr, err != nil, err)
 			assert.Equal(t, tt.wantResult, r.TotalItems > 0)
 		})
@@ -258,7 +258,7 @@ func TestClient_List(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.client.List(tt.collection, tt.params)
+			got, err := List[map[string]any](tt.client, tt.collection, tt.params)
 			assert.Equal(t, tt.wantErr, err != nil, err)
 			assert.Equal(t, tt.wantResult, got.TotalItems > 0)
 		})
@@ -274,14 +274,14 @@ func TestClient_Delete(t *testing.T) {
 	assert.Error(t, err)
 
 	// create temporary item
-	resultCreated, err := client.Create(migrations.PostsPublic, map[string]any{
+	resultCreated, err := Create(client, migrations.PostsPublic, map[string]any{
 		"field": field,
 	})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resultCreated.ID)
 
 	// confirm item exists
-	resultList, err := client.List(migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
+	resultList, err := List[map[string]any](client, migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
 	assert.NoError(t, err)
 	assert.Len(t, resultList.Items, 1)
 
@@ -290,7 +290,7 @@ func TestClient_Delete(t *testing.T) {
 	assert.NoError(t, err)
 
 	// confirm item does not exist
-	resultList, err = client.List(migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
+	resultList, err = List[map[string]any](client, migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
 	assert.NoError(t, err)
 	assert.Len(t, resultList.Items, 0)
 }
@@ -300,32 +300,32 @@ func TestClient_Update(t *testing.T) {
 	field := "value_" + time.Now().Format(time.StampMilli)
 
 	// update non-existing item
-	err := client.Update(migrations.PostsPublic, "non_existing_id", map[string]any{
+	err := Update(client, migrations.PostsPublic, "non_existing_id", map[string]any{
 		"field": field,
 	})
 	assert.Error(t, err)
 
 	// create temporary item
-	resultCreated, err := client.Create(migrations.PostsPublic, map[string]any{
+	resultCreated, err := Create(client, migrations.PostsPublic, map[string]any{
 		"field": field,
 	})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resultCreated.ID)
 
 	// confirm item exists
-	resultList, err := client.List(migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
+	resultList, err := List[map[string]any](client, migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
 	assert.NoError(t, err)
 	require.Len(t, resultList.Items, 1)
 	assert.Equal(t, field, resultList.Items[0]["field"])
 
 	// update temporary item
-	err = client.Update(migrations.PostsPublic, resultCreated.ID, map[string]any{
+	err = Update(client, migrations.PostsPublic, resultCreated.ID, map[string]any{
 		"field": field + "_updated",
 	})
 	assert.NoError(t, err)
 
 	// confirm changes
-	resultList, err = client.List(migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
+	resultList, err = List[map[string]any](client, migrations.PostsPublic, ParamsList{Filters: "id='" + resultCreated.ID + "'"})
 	assert.NoError(t, err)
 	require.Len(t, resultList.Items, 1)
 	assert.Equal(t, field+"_updated", resultList.Items[0]["field"])
@@ -377,7 +377,7 @@ func TestClient_Create(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r, err := tt.client.Create(tt.collection, tt.body)
+			r, err := Create(tt.client, tt.collection, tt.body)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
@@ -397,18 +397,18 @@ func TestClient_One(t *testing.T) {
 	field := "value_" + time.Now().Format(time.StampMilli)
 
 	// Get non-existing item
-	_, err := client.One(migrations.PostsPublic, "non_existing_id")
+	_, err := One[map[string]any](client, migrations.PostsPublic, "non_existing_id")
 	assert.Error(t, err)
 
 	// Create temporary item
-	resultCreated, err := client.Create(migrations.PostsPublic, map[string]any{
+	resultCreated, err := Create(client, migrations.PostsPublic, map[string]any{
 		"field": field,
 	})
 	assert.NoError(t, err)
 	assert.NotEmpty(t, resultCreated.ID)
 
 	// Get existing item
-	result, err := client.One(migrations.PostsPublic, resultCreated.ID)
+	result, err := One[map[string]any](client, migrations.PostsPublic, resultCreated.ID)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, field, result["field"])
@@ -424,11 +424,11 @@ func TestClient_OneTo(t *testing.T) {
 
 	// Get non-existing item
 	var nonExistingResult map[string]any
-	err := client.OneTo(migrations.PostsPublic, "non_existing_id", &nonExistingResult)
+	err := OneTo(client, migrations.PostsPublic, "non_existing_id", &nonExistingResult)
 	assert.Error(t, err)
 
 	// Create temporary item
-	resultCreated, err := client.Create(migrations.PostsPublic, map[string]any{
+	resultCreated, err := Create[map[string]any](client, migrations.PostsPublic, map[string]any{
 		"field": field,
 	})
 	assert.NoError(t, err)
@@ -442,7 +442,7 @@ func TestClient_OneTo(t *testing.T) {
 
 	// Get existing item
 	var result Post
-	err = client.OneTo(migrations.PostsPublic, resultCreated.ID, &result)
+	err = OneTo(client, migrations.PostsPublic, resultCreated.ID, &result)
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
 	assert.Equal(t, field, result.Field)

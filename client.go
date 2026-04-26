@@ -134,7 +134,7 @@ func (c *Client) Authorize() error {
 	return c.authorizer.authorize()
 }
 
-func (c *Client) Update(collection string, id string, body any) error {
+func Update[T any](c *Client, collection string, id string, body T) (err error) {
 	if err := c.Authorize(); err != nil {
 		return err
 	}
@@ -159,7 +159,7 @@ func (c *Client) Update(collection string, id string, body any) error {
 	return nil
 }
 
-func (c *Client) Get(path string, result any, onRequest func(*resty.Request), onResponse func(*resty.Response)) error {
+func (c *Client) Get(path string, result any, onRequest func(*resty.Request), onResponse func(*resty.Response)) (err error) {
 	if err := c.Authorize(); err != nil {
 		return err
 	}
@@ -192,8 +192,7 @@ func (c *Client) Get(path string, result any, onRequest func(*resty.Request), on
 	return nil
 }
 
-func (c *Client) Create(collection string, body any) (ResponseCreate, error) {
-	var response ResponseCreate
+func Create[T any](c *Client, collection string, body T) (response ResponseCreate, create error) {
 
 	if err := c.Authorize(); err != nil {
 		return response, err
@@ -222,7 +221,7 @@ func (c *Client) Create(collection string, body any) (ResponseCreate, error) {
 	return *resp.Result().(*ResponseCreate), nil
 }
 
-func (c *Client) Delete(collection string, id string) error {
+func (c *Client) Delete(collection string, id string) (err error) {
 	if err := c.Authorize(); err != nil {
 		return err
 	}
@@ -248,9 +247,7 @@ func (c *Client) Delete(collection string, id string) error {
 	return nil
 }
 
-func (c *Client) One(collection string, id string) (map[string]any, error) {
-	var response map[string]any
-
+func One[T any](c *Client, collection string, id string) (response T, err error) {
 	if err := c.Authorize(); err != nil {
 		return response, err
 	}
@@ -280,7 +277,7 @@ func (c *Client) One(collection string, id string) (map[string]any, error) {
 	return response, nil
 }
 
-func (c *Client) OneTo(collection string, id string, result any) error {
+func OneTo[T any](c *Client, collection string, id string, result *T) (err error) {
 	if err := c.Authorize(); err != nil {
 		return err
 	}
@@ -310,9 +307,7 @@ func (c *Client) OneTo(collection string, id string, result any) error {
 	return nil
 }
 
-func (c *Client) List(collection string, params ParamsList) (ResponseList[map[string]any], error) {
-	var response ResponseList[map[string]any]
-
+func List[T any](c *Client, collection string, params ParamsList) (response ResponseList[T], err error) {
 	if err := c.Authorize(); err != nil {
 		return response, err
 	}
@@ -363,8 +358,7 @@ func (c *Client) List(collection string, params ParamsList) (ResponseList[map[st
 	return response, nil
 }
 
-func (c *Client) FullList(collection string, params ParamsList) (ResponseList[map[string]any], error) {
-	var response ResponseList[map[string]any]
+func FullList[T any](c *Client, collection string, params ParamsList) (response ResponseList[T], err error) {
 	params.Page = 1
 	params.Size = 500
 
@@ -372,7 +366,7 @@ func (c *Client) FullList(collection string, params ParamsList) (ResponseList[ma
 		return response, err
 	}
 
-	r, e := c.List(collection, params)
+	r, e := List[T](c, collection, params)
 	if e != nil {
 		return response, e
 	}
@@ -384,7 +378,7 @@ func (c *Client) FullList(collection string, params ParamsList) (ResponseList[ma
 
 	for i := 2; i <= r.TotalPages; i++ { // Start from page 2 because first page is already fetched
 		params.Page = i
-		r, e := c.List(collection, params)
+		r, e := List[T](c, collection, params)
 		if e != nil {
 			return response, e
 		}

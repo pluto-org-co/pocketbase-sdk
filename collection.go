@@ -21,11 +21,11 @@ func CollectionSet[T any](client *Client, collection string) *Collection[T] {
 }
 
 func (c *Collection[T]) Update(id string, body T) error {
-	return c.Client.Update(c.Name, id, body)
+	return Update[T](c.Client, c.Name, id, body)
 }
 
 func (c *Collection[T]) Create(body T) (ResponseCreate, error) {
-	return c.Client.Create(c.Name, body)
+	return Create[T](c.Client, c.Name, body)
 }
 
 func (c *Collection[T]) Delete(id string) error {
@@ -36,7 +36,7 @@ func (c *Collection[T]) List(params ParamsList) (ResponseList[T], error) {
 	var response ResponseList[T]
 	params.hackResponseRef = &response
 
-	_, err := c.Client.List(c.Name, params)
+	_, err := List[T](c.Client, c.Name, params)
 	return response, err
 }
 
@@ -44,7 +44,7 @@ func (c *Collection[T]) FullList(params ParamsList) (ResponseList[T], error) {
 	var response ResponseList[T]
 	params.hackResponseRef = &response
 
-	_, err := c.Client.FullList(c.Name, params)
+	_, err := FullList[T](c.Client, c.Name, params)
 	return response, err
 }
 
