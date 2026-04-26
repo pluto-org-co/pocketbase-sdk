@@ -1,8 +1,6 @@
-module github.com/pluja/pocketbase
+module github.com/pluto-org-co/pocketbase-sdk
 
-go 1.23
-
-toolchain go1.23.3
+go 1.26.0
 
 require (
 	github.com/SierraSoftworks/multicast/v2 v2.0.0

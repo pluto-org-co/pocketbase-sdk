@@ -1,4 +1,4 @@
-[![Check & test & build](https://github.com/pluja/pocketbase/actions/workflows/main.yml/badge.svg)](https://github.com/pluja/pocketbase/actions/workflows/main.yml)
+[![Check & test & build](https://github.com/pluto-org-co/pocketbase-sdk/actions/workflows/main.yml/badge.svg)](https://github.com/pluto-org-co/pocketbase-sdk/actions/workflows/main.yml)
 [![PocketBase](https://pocketbase.io/images/logo.svg)](https://pocketbase.io)
 
 ### Project
@@ -27,7 +27,7 @@ It's a great alternative to Airtable, Notion, and Google Sheets. Source code is 
 This SDK doesn't have feature parity with official SDKs and supports the following operations:
 
 * **Authentication** - anonymous, admin and user via email/password
-* **Create** 
+* **Create**
 * **Update**
 * **Delete**
 * **List** - with pagination, filtering, sorting
@@ -44,7 +44,7 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 func main() {
@@ -70,7 +70,7 @@ func main() {
 	log.Print(response.TotalItems)
 }
 ```
-Creating an item with admin user (auth via email/pass). 
+Creating an item with admin user (auth via email/pass).
 Please note that you can pass `map[string]any` or `struct with JSON tags` as a payload:
 
 ```go
@@ -79,11 +79,11 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 func main() {
-	client := pocketbase.NewClient("http://localhost:8090", 
+	client := pocketbase.NewClient("http://localhost:8090",
 		pocketbase.WithAdminEmailPassword("admin@admin.com", "admin@admin.com"))
 	response, err := client.Create("posts_admin", map[string]any{
 		"field": "test",
@@ -102,7 +102,7 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 type post struct {
@@ -130,7 +130,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
     log.Printf("%+v", response.Items)
 }
 ```
@@ -143,7 +143,7 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 type post struct {
@@ -161,7 +161,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	stream, err := collection.Subscribe()
 	if err != nil {
 		log.Fatal(err)
@@ -184,7 +184,7 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 func main() {
@@ -209,7 +209,7 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 type Post struct {
@@ -240,11 +240,11 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 func main() {
-	client := pocketbase.NewClient("http://localhost:8090", 
+	client := pocketbase.NewClient("http://localhost:8090",
 		pocketbase.WithAdminEmailPassword("admin@admin.com", "admin@admin.com"))
 	err := client.Backup().Create("foobar.zip")
 	if err != nil {
@@ -263,7 +263,7 @@ package main
 import (
 	"log"
 
-	"github.com/pluja/pocketbase"
+	"github.com/pluto-org-co/pocketbase-sdk"
 )
 
 type User struct {
@@ -294,11 +294,11 @@ More examples can be found in:
 
 ## Development
 
-### Makefile targets 
+### Makefile targets
 * `make serve` - builds all binaries and runs local PocketBase server, it will create collections and sample data based on [migration files](./migrations)
 * `make test` - runs tests (make sure that PocketBase server is running - `make serve` before)
 * `make check` - runs linters and security checks (run this before commit)
-* `make build` - builds all binaries (examples and PocketBase server) 
+* `make build` - builds all binaries (examples and PocketBase server)
 * `make help` - shows help and other targets
 
 ## Contributing
